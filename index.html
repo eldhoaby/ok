@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLAMES Game</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        input, button { margin: 10px; padding: 10px; font-size: 16px; }
+        #result { font-size: 20px; font-weight: bold; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>FLAMES Game</h1>
+    <input type="text" id="name1" placeholder="Enter first name">
+    <input type="text" id="name2" placeholder="Enter second name">
+    <button onclick="playFlames()">Find Relationship</button>
+    <p id="result"></p>
+
+    <script>
+        function removeCommonLetters(str1, str2) {
+            let name1 = str1.toLowerCase().replace(/\s/g, "").split("");
+            let name2 = str2.toLowerCase().replace(/\s/g, "").split("");
+
+            name1.forEach(letter => {
+                let index = name2.indexOf(letter);
+                if (index !== -1) {
+                    name2.splice(index, 1);
+                } else {
+                    name2.push(letter);
+                }
+            });
+
+            return name2.length;
+        }
+
+        function flamesResult(count) {
+            let flames = ["Friends", "Love", "Affection", "Marriage", "Enemy", "Siblings"];
+            while (flames.length > 1) {
+                let index = (count % flames.length) - 1;
+                if (index >= 0) {
+                    flames = flames.slice(index + 1).concat(flames.slice(0, index));
+                } else {
+                    flames.pop();
+                }
+            }
+            return flames[0];
+        }
+
+        function playFlames() {
+            let name1 = document.getElementById("name1").value.trim();
+            let name2 = document.getElementById("name2").value.trim();
+            if (!name1 || !name2) {
+                alert("Please enter both names!");
+                return;
+            }
+
+            let count = removeCommonLetters(name1, name2);
+            let result = flamesResult(count);
+            let shareableLink = `${window.location.origin}${window.location.pathname}?name1=${encodeURIComponent(name1)}&name2=${encodeURIComponent(name2)}&result=${encodeURIComponent(result)}`;
+            
+            document.getElementById("result").innerHTML = `Relationship: <strong>${result}</strong><br><a href="${shareableLink}" target="_blank">Share Result</a>`;
+        }
+
+        function checkForParams() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.has("name1") && params.has("name2") && params.has("result")) {
+                document.getElementById("result").innerHTML = `Relationship between <strong>${params.get("name1")}</strong> and <strong>${params.get("name2")}</strong> is <strong>${params.get("result")}</strong>`;
+            }
+        }
+
+        window.onload = checkForParams;
+    </script>
+</body>
+</html>
